@@ -8,7 +8,7 @@ from yaml_patch import patch
 
 @click.command(
     help="""
-Applies patches to a yaml string, keeping most of the formatting and comments.
+Apply patches to a yaml string, keeping most of the formatting and comments.
 
 \b
 Some formatting is not kept due to underlying yaml library limitations:
@@ -22,24 +22,19 @@ You can pass any number of patches to be applied, they use the following syntax 
 Patch a single value:
   <field>.<subfield>=<value>
 Example:
-  spec.replicas=2
+  yaml-patch -f test.yml 'spec.replicas=2'
 
 \b
 Patch a value inside a single list item:
   <field>.[<position]>.<subfield>=<value>
 Example:
-  spec.template.containers.[0].image="mycontainer:latest"
+  yaml-patch -f test.yml 'spec.template.containers.[0].image="mycontainer:latest"'
 
 \b
 Patch a value inside all list items:
   <field>.[].<subfield>=<value>
 Example:
-  spec.template.containers.[].image="mycontainer:latest"
-
-\b
-When calling this tool from a command line, it's higly recommended that you quote all patches arguments to avoid terminal issues.
-Example:
-  yaml-patch -f test.yml 'spec.template.containers.[0].image="mycontainer:latest"'
+  yaml-patch -f test.yml 'spec.template.containers.[].image="mycontainer:latest"'
 """,
 )
 @click.option(
