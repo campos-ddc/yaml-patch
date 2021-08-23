@@ -16,7 +16,7 @@ You can pass any number of patches to be applied, they use the following syntax 
 
 Example:
 ```bash
-yaml-patch -f test.yml  'spec.replicas=2'
+yaml-patch -f test.yml  "spec.replicas=2"
 ```
 
 ### Patch a value inside a single list item:
@@ -24,7 +24,7 @@ yaml-patch -f test.yml  'spec.replicas=2'
 
 Example:
 ```bash
-yaml-patch -f test.yml  'spec.template.containers.[0].image="mycontainer:latest"'
+yaml-patch -f test.yml  "spec.template.containers.[0].image='mycontainer:latest'"
 ```
 
 ### Patch a value inside all list items:
@@ -32,7 +32,7 @@ yaml-patch -f test.yml  'spec.template.containers.[0].image="mycontainer:latest"
 
 Example:
 ```bash
-yaml-patch -f test.yml 'spec.template.containers.[].image="mycontainer:latest"'
+yaml-patch -f test.yml "spec.template.containers.[].image='mycontainer:latest'"
 ```
 
 ## As a Python library

@@ -22,19 +22,19 @@ You can pass any number of patches to be applied, they use the following syntax 
 Patch a single value:
   <field>.<subfield>=<value>
 Example:
-  yaml-patch -f test.yml 'spec.replicas=2'
+  yaml-patch -f test.yml "spec.replicas=2"
 
 \b
 Patch a value inside a single list item:
   <field>.[<position]>.<subfield>=<value>
 Example:
-  yaml-patch -f test.yml 'spec.template.containers.[0].image="mycontainer:latest"'
+  yaml-patch -f test.yml "spec.template.containers.[0].image='mycontainer:latest'"
 
 \b
 Patch a value inside all list items:
   <field>.[].<subfield>=<value>
 Example:
-  yaml-patch -f test.yml 'spec.template.containers.[].image="mycontainer:latest"'
+  yaml-patch -f test.yml "spec.template.containers.[].image='mycontainer:latest'"
 """,
 )
 @click.option(
