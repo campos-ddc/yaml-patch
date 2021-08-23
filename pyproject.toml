@@ -3,10 +3,11 @@ line-length = 120
 
 [tool.poetry]
 name = "yaml-patch"
-version = "0.1.1"
+version = "0.1.2"
 description = "Patch yaml strings"
 readme = "README.md"
 authors = ["Diogo de Campos <campos.ddc@gmail.com>"]
+homepage = "https://github.com/campos-ddc/yaml-patch"
 license = "MIT"
 
 [tool.poetry.scripts]
