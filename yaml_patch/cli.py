@@ -43,8 +43,11 @@ Example:
 @click.option(
     "--output", "-o", type=click.File("w"), default=sys.stdout, help="Path to output patched file. Defaults to stdout."
 )
+@click.option(
+    "--in-place", "-i", is_flag=True, help="Replace source file in-place. Overrides --output."
+)
 @click.argument("patches", nargs=-1)
-def cli(file, output, patches):
+def cli(file, output, in_place, patches):
     # Split each patch into key+value separated by `=`. Use YAML to load the values coming from command line to ensure
     # they are parsed into yaml syntax equivalents (automatically detect strings, ints, bools, etc).
     yaml = YAML()
@@ -53,7 +56,14 @@ def cli(file, output, patches):
         k, v = p.split("=")
         dict_patches[k] = yaml.load(v)
 
-    patched = patch(file.read(), dict_patches)
+    with file:
+        patched = patch(file.read(), dict_patches)
+
+    if in_place:
+        if file == sys.stdin:
+            raise RuntimeError("Cannot use --in-place with stdin as the source")
+        output = open(file.name, 'w')
+
     output.write(patched)
 
 
