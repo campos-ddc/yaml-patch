@@ -1,9 +1,6 @@
 import sys
 
 import click
-from ruamel.yaml import YAML
-
-from yaml_patch import patch
 
 
 @click.command(
@@ -38,32 +35,42 @@ Example:
 """,
 )
 @click.option(
-    "--file", "-f", type=click.File("r"), default=sys.stdin, help="Path to yaml file being patched. Defaults to stdin."
+    "--file", "-f", type=click.File("r"), default=None, help="Path to yaml file being patched. Defaults to stdin."
 )
 @click.option(
-    "--output", "-o", type=click.File("w"), default=sys.stdout, help="Path to output patched file. Defaults to stdout."
+    "--output", "-o", type=click.File("w"), default=None, help="Path to output patched file. Defaults to stdout."
 )
-@click.option(
-    "--in-place", "-i", is_flag=True, help="Replace source file in-place. Overrides --output."
-)
+@click.option("--in-place", "-i", is_flag=True, help="Replace source file in-place. Overrides --output.")
 @click.argument("patches", nargs=-1)
 def cli(file, output, in_place, patches):
+    # Default i/o to stdin/stdout down here so click.testing has time to capture those streams
+    if file is None:
+        file = sys.stdin
+    if output is None:
+        output = sys.stdout
+
+    # Check for bad arguments
+    if in_place and file == sys.stdin:
+        raise ValueError("Cannot use --in-place with stdin as the source")
+
     # Split each patch into key+value separated by `=`. Use YAML to load the values coming from command line to ensure
     # they are parsed into yaml syntax equivalents (automatically detect strings, ints, bools, etc).
+    from ruamel.yaml import YAML
+
     yaml = YAML()
     dict_patches = dict()
     for p in patches:
         k, v = p.split("=")
         dict_patches[k] = yaml.load(v)
 
-    with file:
-        patched = patch(file.read(), dict_patches)
+    # Apply patches
+    from yaml_patch import patch
 
+    patched = patch(yaml_contents=file.read(), patches=dict_patches)
+
+    # Output results
     if in_place:
-        if file == sys.stdin:
-            raise RuntimeError("Cannot use --in-place with stdin as the source")
-        output = open(file.name, 'w')
-
+        output = open(file.name, "w")
     output.write(patched)
 
 
