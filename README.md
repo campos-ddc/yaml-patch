@@ -7,6 +7,12 @@ Some formatting is not kept due to underlying yaml library limitations:
   - Spacing before sequence dashes will be forced to two spaces
   - Empty lines at the start of the string will be removed
 
+## Installation
+
+```bash
+pip install yaml-patch
+```
+
 ## As a command line tool
 
 You can pass any number of patches to be applied, they use the following syntax options:
