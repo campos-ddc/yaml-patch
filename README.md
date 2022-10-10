@@ -17,23 +17,23 @@ pip install yaml-patch
 
 You can pass any number of patches to be applied, they use the following syntax options:
 
-### Patch a single value:
+### Override a single value:
 `<field>.<subfield>=<value>`
 
 Example:
 ```bash
-yaml-patch -f test.yml  "spec.replicas=2"
+yaml-patch -f test.yml "spec.replicas=2"
 ```
 
-### Patch a value inside a single list item:
+### Override a value inside a single list item:
 `<field>.[<position]>.<subfield>=<value>`
 
 Example:
 ```bash
-yaml-patch -f test.yml  "spec.template.containers.[0].image='mycontainer:latest'"
+yaml-patch -f test.yml "spec.template.containers.[0].image='mycontainer:latest'"
 ```
 
-### Patch a value inside all list items:
+### Override a value inside all list items:
 `<field>.[].<subfield>=<value>`
 
 Example:
@@ -41,14 +41,32 @@ Example:
 yaml-patch -f test.yml "spec.template.containers.[].image='mycontainer:latest'"
 ```
 
+### Append a single value:
+`<field>.<subfield>+=<value>`
+
+Example (increment int):
+```bash
+yaml-patch -f test.yml "spec.replicas+=2"
+```
+
+Example (append string):
+```bash
+yaml-patch -f test.yml "spec.template.containers.[0].image+=':latest'"
+```
+
+Example (append item to list):
+```bash
+yaml-patch -f test.yml "spec.template.containers.[0].args+=['--verbose']"
+```
+
 ## As a Python library
 
-To use `yaml-patch` as a library just import the function and pass patches as dictionary entries.
+To use `yaml-patch` as a library just import the function and pass patches as you would in the CLI examples above.
 
 Example:
 
 ```python
-from yaml_patch import patch
+from yaml_patch import patch_yaml
 from textwrap import dedent
 
 def override_list_all_values():
@@ -59,7 +77,7 @@ def override_list_all_values():
           - bob
         """
     )
-    patches = {"some_list.[]": "charlie"}
+    patches = ["some_list.[]='charlie'"]
     expected_yaml = dedent(
         """\
         some_list:
@@ -67,5 +85,5 @@ def override_list_all_values():
           - charlie
         """
     )
-    assert patch(source_yaml, patches) == expected_yaml
+    assert patch_yaml(source_yaml, patches) == expected_yaml
 ```
