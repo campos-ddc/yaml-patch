@@ -1,3 +1,3 @@
-from .patch import patch
+from .patch import patch_yaml, patch
 
-__all__ = ["patch"]
+__all__ = ["patch_yaml", "patch"]

@@ -13,46 +13,38 @@ def test_no_patches():
 
     runner = CliRunner()
 
-    with mock.patch("yaml_patch.patch", return_value="mock_output") as mock_patch:
+    with mock.patch("yaml_patch.patch_yaml", return_value="mock_output") as mock_patch:
         from yaml_patch.cli import cli
 
         result = runner.invoke(cli, input="key: value")
 
     __assert_result_success(result)
     assert result.stdout == "mock_output"
-    mock_patch.assert_called_once_with(yaml_contents="key: value", patches=dict())
+    mock_patch.assert_called_once_with(yaml_contents="key: value", patches=tuple())
 
 
 def test_patches():
     """
-    Test that patch arguments from CLI are parsed correctly
+    Test that patch arguments from CLI are forwarded correctly
     """
     runner = CliRunner()
 
-    cli_patches = [
+    cli_patches = (
         "key='new value'",
         "key.subkey='new subvalue'",
         "key.list.[0]='value in list'",
         "key.subint=5",
         "key.subbool=true",
-    ]
+    )
 
-    expected_patches = {
-        "key": "new value",
-        "key.subkey": "new subvalue",
-        "key.list.[0]": "value in list",
-        "key.subint": 5,
-        "key.subbool": True,
-    }
-
-    with mock.patch("yaml_patch.patch", return_value="mock_output") as mock_patch:
+    with mock.patch("yaml_patch.patch_yaml", return_value="mock_output") as mock_patch:
         from yaml_patch.cli import cli
 
         result = runner.invoke(cli, cli_patches, input="key: value")
 
     __assert_result_success(result)
     assert result.stdout == "mock_output"
-    mock_patch.assert_called_once_with(yaml_contents="key: value", patches=expected_patches)
+    mock_patch.assert_called_once_with(yaml_contents="key: value", patches=cli_patches)
 
 
 def test_patch_file_input(tmp_path):
@@ -64,14 +56,14 @@ def test_patch_file_input(tmp_path):
 
     runner = CliRunner()
 
-    with mock.patch("yaml_patch.patch", return_value="mock_output") as mock_patch:
+    with mock.patch("yaml_patch.patch_yaml", return_value="mock_output") as mock_patch:
         from yaml_patch.cli import cli
 
         result = runner.invoke(cli, [f"--file={tmp_yaml}"])
 
     __assert_result_success(result)
     assert result.stdout == "mock_output"
-    mock_patch.assert_called_once_with(yaml_contents="key: 'value in file'", patches=dict())
+    mock_patch.assert_called_once_with(yaml_contents="key: 'value in file'", patches=tuple())
 
 
 def test_patch_file_output(tmp_path):
@@ -83,7 +75,7 @@ def test_patch_file_output(tmp_path):
 
     runner = CliRunner()
 
-    with mock.patch("yaml_patch.patch", return_value="mock_output") as mock_patch:
+    with mock.patch("yaml_patch.patch_yaml", return_value="mock_output") as mock_patch:
         from yaml_patch.cli import cli
 
         result = runner.invoke(cli, [f"--output={tmp_yaml}"], input="key: value")
@@ -91,7 +83,7 @@ def test_patch_file_output(tmp_path):
     __assert_result_success(result)
     assert result.stdout == ""  # stdout is empty because we output to a file
     assert tmp_yaml.read_text() == "mock_output"
-    mock_patch.assert_called_once_with(yaml_contents="key: value", patches=dict())
+    mock_patch.assert_called_once_with(yaml_contents="key: value", patches=tuple())
 
 
 def test_patch_file_input_and_output(tmp_path):
@@ -104,7 +96,7 @@ def test_patch_file_input_and_output(tmp_path):
 
     runner = CliRunner()
 
-    with mock.patch("yaml_patch.patch", return_value="mock_output") as mock_patch:
+    with mock.patch("yaml_patch.patch_yaml", return_value="mock_output") as mock_patch:
         from yaml_patch.cli import cli
 
         result = runner.invoke(cli, [f"--file={input_yaml}", f"--output={output_yaml}"], input="key: value")
@@ -112,7 +104,7 @@ def test_patch_file_input_and_output(tmp_path):
     __assert_result_success(result)
     assert result.stdout == ""  # stdout is empty because we output to a file
     assert output_yaml.read_text() == "mock_output"
-    mock_patch.assert_called_once_with(yaml_contents="key: 'value in file'", patches=dict())
+    mock_patch.assert_called_once_with(yaml_contents="key: 'value in file'", patches=tuple())
 
 
 def test_patch_file_same_input_and_output(tmp_path):
@@ -124,7 +116,7 @@ def test_patch_file_same_input_and_output(tmp_path):
 
     runner = CliRunner()
 
-    with mock.patch("yaml_patch.patch", return_value="mock_output") as mock_patch:
+    with mock.patch("yaml_patch.patch_yaml", return_value="mock_output") as mock_patch:
         from yaml_patch.cli import cli
 
         result = runner.invoke(cli, [f"--file={tmp_yaml}", f"--output={tmp_yaml}"], input="key: value")
@@ -132,7 +124,7 @@ def test_patch_file_same_input_and_output(tmp_path):
     __assert_result_success(result)
     assert result.stdout == ""  # stdout is empty because we output to a file
     assert tmp_yaml.read_text() == "mock_output"
-    mock_patch.assert_called_once_with(yaml_contents="key: 'value in file'", patches=dict())
+    mock_patch.assert_called_once_with(yaml_contents="key: 'value in file'", patches=tuple())
 
 
 def test_inplace(tmp_path):
@@ -144,7 +136,7 @@ def test_inplace(tmp_path):
 
     runner = CliRunner()
 
-    with mock.patch("yaml_patch.patch", return_value="mock_output") as mock_patch:
+    with mock.patch("yaml_patch.patch_yaml", return_value="mock_output") as mock_patch:
         from yaml_patch.cli import cli
 
         result = runner.invoke(cli, [f"--file={tmp_yaml}", "--in-place"], input="key: value")
@@ -152,7 +144,7 @@ def test_inplace(tmp_path):
     __assert_result_success(result)
     assert result.stdout == ""  # stdout is empty because we output to a file
     assert tmp_yaml.read_text() == "mock_output"
-    mock_patch.assert_called_once_with(yaml_contents="key: 'value in file'", patches=dict())
+    mock_patch.assert_called_once_with(yaml_contents="key: 'value in file'", patches=tuple())
 
 
 def test_cant_use_inplace_with_stdin(tmp_path):
@@ -164,7 +156,7 @@ def test_cant_use_inplace_with_stdin(tmp_path):
 
     runner = CliRunner()
 
-    with mock.patch("yaml_patch.patch", return_value="mock_output") as mock_patch:
+    with mock.patch("yaml_patch.patch_yaml", return_value="mock_output") as mock_patch:
         from yaml_patch.cli import cli
 
         result = runner.invoke(cli, ["--in-place"], input="key: value")

@@ -1,6 +1,8 @@
 from textwrap import dedent
 
-from yaml_patch import patch
+import pytest
+
+from yaml_patch import patch_yaml, patch
 
 
 def check(obtained, expected):
@@ -132,3 +134,52 @@ def test_override_object_within_a_list():
         """
     )
     check(patch(source_yaml, patches), expected_yaml)
+
+
+def test_append_to_int():
+    source_yaml = dedent(
+        """\
+        some_key: 1
+        """
+    )
+    patches = ["some_key+=2"]
+    expected_yaml = dedent(
+        """\
+        some_key: 3
+        """
+    )
+    check(patch_yaml(source_yaml, patches), expected_yaml)
+
+
+def test_append_to_list():
+    source_yaml = dedent(
+        """\
+        some_list:
+          - alice
+          - bob
+        """
+    )
+    patches = ["some_list+=['charlie']"]
+    expected_yaml = dedent(
+        """\
+        some_list:
+          - alice
+          - bob
+          - charlie
+        """
+    )
+    check(patch_yaml(source_yaml, patches), expected_yaml)
+
+
+def test_append_str_to_list():
+    source_yaml = dedent(
+        """\
+        some_list:
+          - alice
+          - bob
+        """
+    )
+    patches = ["some_list+='charlie'"]
+    with pytest.raises(TypeError) as e:
+        patch_yaml(source_yaml, patches)
+    assert str(e.value) == 'can only concatenate list (not "str") to list'

@@ -53,20 +53,24 @@ def cli(file, output, in_place, patches):
     if in_place and file == sys.stdin:
         raise ValueError("Cannot use --in-place with stdin as the source")
 
-    # Split each patch into key+value separated by `=`. Use YAML to load the values coming from command line to ensure
-    # they are parsed into yaml syntax equivalents (automatically detect strings, ints, bools, etc).
-    from ruamel.yaml import YAML
+    from yaml_patch import patch_yaml
 
-    yaml = YAML()
-    dict_patches = dict()
-    for p in patches:
-        k, v = p.split("=")
-        dict_patches[k] = yaml.load(v)
+    patched = patch_yaml(yaml_contents=file.read(), patches=patches)
 
-    # Apply patches
-    from yaml_patch import patch
-
-    patched = patch(yaml_contents=file.read(), patches=dict_patches)
+    # # Split each patch into key+value separated by `=`. Use YAML to load the values coming from command line to ensure
+    # # they are parsed into yaml syntax equivalents (automatically detect strings, ints, bools, etc).
+    # from ruamel.yaml import YAML
+    #
+    # yaml = YAML()
+    # dict_patches = dict()
+    # for p in patches:
+    #     k, v = p.split("=")
+    #     dict_patches[k] = yaml.load(v)
+    #
+    # # Apply patches
+    # from yaml_patch import patch
+    #
+    # patched = patch(yaml_contents=file.read(), patches=dict_patches)
 
     # Output results
     if in_place:
